@@ -1,30 +1,36 @@
 import httpx
 import asyncio
+import pprint
+from copy import deepcopy
 
-from bs4 import BeautifulSoup
+from utils import write_json_async
 
+INSTAHYRE_BASE_URL = "https://www.instahyre.com"
 
 async def scrape_job_market(link):
     # Enable http2=True to help bypass modern anti-bot setups
     limits = httpx.Limits(max_keepalive_connections=50, max_connections=100)
     
     async with httpx.AsyncClient(limits=limits) as client:
-        resp = await client.get(link)
-        html_doc = await resp.aread()
-        soup = BeautifulSoup(html_doc, 'html.parser')
+        headers = {
+            "User-Agent": (
+                "Chrome/137.0.0.0 Safari/537.36"
+            )
+        }
+        response = await client.get(link, headers=headers)
+        resp = response.json()
+        fetched_jobs = []
+        for job in resp.get("jobs"):
+            job_url = f"{INSTAHYRE_BASE_URL}{job.get('resource_uri')}"
+            print(job_url)
+            job_response = await client.get(job_url, headers=headers)
+            job_overview = job_response.json()
+            fetched_jobs.append(job_overview)
 
-        print(soup.prettify())
-        res = soup.find_all(id='similar-jobs')
-        print("====")
-        print(res)
-
-        # Step 1: Scrape the main aggregator platforms (Benefits from pooling)
-        # aggregator_urls = ["https://unstop.com", "https://cutshort.io"]
-        # tasks = [client.get(url) for url in aggregator_urls]
-        # responses = await asyncio.gather(*tasks)
+        jobs = deepcopy(resp.get("jobs"))
+        print("jobs in this company.")
         
-        # Step 2: Extract individual career pages from responses and queue them
-        # (These will establish fresh connections, but HTTP/2 protects them from instant bans)
+        await write_json_async("data_v1.json",fetched_jobs)
 
 
-asyncio.run(scrape_job_market("https://www.instahyre.com/jobs-at-joveo/"))
+asyncio.run(scrape_job_market("https://www.instahyre.com/api/v1/employer_misc/employer_profile/anon_employer/53676?getVisibleJobs=true&limit=10"))

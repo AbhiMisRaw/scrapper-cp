@@ -4,9 +4,10 @@ import httpx
 from .base import BaseScrapper
 
 class InstahyreScrapper(BaseScrapper):
+    base_url = "https://www.instahyre.com"
 
-    def __init__(self, base_link: str):
-        self.link = base_link
+    def __init__(self, link: str):
+        self.link = link
 
 
     async def fetch_jobs(self):
