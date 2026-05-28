@@ -1,0 +1,1 @@
+from .instahyre_scrapper import InstahyreScrapper

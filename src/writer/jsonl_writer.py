@@ -1,5 +1,4 @@
 import aiofiles
-import asyncio
 import json
 from pathlib import Path
 
@@ -9,7 +8,7 @@ class AsyncJsonlWriter:
         self,
         output_dir: str,
         source_name: str,
-        flush_every: int = 50,
+        flush_every: int = 10,
         max_records: int = 10000,
     ):
         self.output_dir = Path(output_dir)
@@ -34,7 +33,8 @@ class AsyncJsonlWriter:
             await self.file.close()
 
         file_path = self.output_dir / f"{self.source_name}_{self.file_index}.jsonl"
-        self.file = await aiofiles.open(file_path, mode="a", encoding="utf-8")
+        self.file = await aiofiles.open(file_path, mode="w", encoding="utf-8")
+        print("file has been opened")
 
         self.file_index += 1
         self.record_count = 0
@@ -54,7 +54,7 @@ class AsyncJsonlWriter:
         if not self.buffer:
             return
 
-        await self.file.write("\n".join(self.buffer) + "\n")
+        await self.file.write(("\n".join(self.buffer) + "\n"))
         self.buffer.clear()
 
     async def _rotate(self):
@@ -64,3 +64,4 @@ class AsyncJsonlWriter:
     async def close(self):
         await self.flush()
         await self.file.close()
+        print("file is written completly.")
