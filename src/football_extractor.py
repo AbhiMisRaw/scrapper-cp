@@ -8,6 +8,9 @@ def print_table(file):
         "table",
         class_="sortable plainrowheaders wikitable"
     )
+    if table == None:
+        raise ValueError("Table not found.")
+    
     headers = [
         th.get_text(strip=True)
         for th in table.find("tr").find_all("th")
