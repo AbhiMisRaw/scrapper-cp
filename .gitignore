@@ -4,3 +4,4 @@ data/
 src/creds.json
 src/footbal_result.html
 src/foot**.md
+.env
