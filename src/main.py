@@ -1,9 +1,7 @@
-import httpx
 import asyncio
-import pprint
-from copy import deepcopy
 from manager import ScrapperManager
-from utils import write_json_async
+from utils import print_hiring_lens
+
 
 # INSTAHYRE_BASE_URL = "https://www.instahyre.com"
 
@@ -35,6 +33,6 @@ from utils import write_json_async
 
 
 manager = ScrapperManager()
-print("Event loop is starting")
+print_hiring_lens()
 asyncio.run(manager.start())
 
